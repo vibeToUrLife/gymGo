@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider, themeInitScript } from "@/lib/theme";
 import { LocaleProvider } from "@/lib/i18n";
 import { ExercisesProvider } from "@/lib/data";
+import { AuthProvider } from "@/lib/auth";
 import { PlanProvider } from "@/lib/plan";
 import { SiteHeader } from "@/components/site-header";
 import { FooterNote } from "@/components/footer-note";
@@ -43,13 +44,15 @@ export default function RootLayout({
         <ThemeProvider>
           <LocaleProvider>
             <ExercisesProvider>
-              <PlanProvider>
-                <SiteHeader />
-                <main className="min-h-[calc(100vh-8rem)]">{children}</main>
-                <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400 dark:border-slate-800">
-                  <FooterNote />
-                </footer>
-              </PlanProvider>
+              <AuthProvider>
+                <PlanProvider>
+                  <SiteHeader />
+                  <main className="min-h-[calc(100vh-8rem)]">{children}</main>
+                  <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400 dark:border-slate-800">
+                    <FooterNote />
+                  </footer>
+                </PlanProvider>
+              </AuthProvider>
             </ExercisesProvider>
           </LocaleProvider>
         </ThemeProvider>

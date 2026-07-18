@@ -12,6 +12,7 @@ import {
 import { ExerciseCard } from "./exercise-card";
 import { ExerciseModal } from "./exercise-modal";
 import { FilterBar } from "./filter-bar";
+import { DayStrip } from "./day-strip";
 
 const PAGE = 48;
 
@@ -39,11 +40,18 @@ export function BrowseClient() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <section className="mb-6">
+      <section className="mb-5">
         <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
           {t("tagline")}
         </h1>
       </section>
+
+      <div className="mb-5 flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:gap-3">
+        <span className="shrink-0 text-sm font-semibold text-slate-500 dark:text-slate-400">
+          {t("addingTo")}:
+        </span>
+        <DayStrip size="sm" />
+      </div>
 
       <div className="mb-6">
         <FilterBar

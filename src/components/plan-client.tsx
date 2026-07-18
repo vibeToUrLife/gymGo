@@ -6,16 +6,19 @@ import { useExercises } from "@/lib/data";
 import { usePlan } from "@/lib/plan";
 import { useI18n } from "@/lib/i18n";
 import { ExerciseImage } from "./exercise-image";
+import { DayStrip } from "./day-strip";
 import type { Exercise } from "@/lib/types";
 
 export function PlanClient() {
   const { byId, loading } = useExercises();
   const plan = usePlan();
-  const { t, term } = useI18n();
+  const { t, term, day } = useI18n();
+
+  const dayIds = plan.plan[plan.activeDay];
 
   const items = useMemo(
-    () => plan.ids.map((id) => byId.get(id)).filter((e): e is Exercise => Boolean(e)),
-    [plan.ids, byId],
+    () => dayIds.map((id) => byId.get(id)).filter((e): e is Exercise => Boolean(e)),
+    [dayIds, byId],
   );
 
   const muscles = useMemo(() => {
@@ -26,19 +29,18 @@ export function PlanClient() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <div className="mb-5 flex items-end justify-between gap-4">
+      {/* Title + week total */}
+      <div className="mb-4 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
             {t("myPlanTitle")}
           </h1>
-          {plan.count > 0 && (
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                {plan.count}
-              </span>{" "}
-              {t("exerciseCountLabel")}
-            </p>
-          )}
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              {plan.count}
+            </span>{" "}
+            {t("weekTotal")}
+          </p>
         </div>
         {plan.count > 0 && (
           <button
@@ -51,9 +53,33 @@ export function PlanClient() {
         )}
       </div>
 
-      {plan.count === 0 && !loading ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-          <div className="text-4xl">📋</div>
+      {/* Weekday tabs */}
+      <div className="mb-5">
+        <DayStrip size="md" />
+      </div>
+
+      {/* Active day header */}
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white">
+          {day(plan.activeDay, "long")}
+          <span className="ml-2 text-sm font-medium text-slate-400">
+            {items.length} {t("dayCountSuffix")}
+          </span>
+        </h2>
+        {items.length > 0 && (
+          <button
+            type="button"
+            onClick={() => plan.clearDay(plan.activeDay)}
+            className="text-sm font-medium text-slate-500 transition hover:text-red-600"
+          >
+            {t("clearDay")}
+          </button>
+        )}
+      </div>
+
+      {items.length === 0 && !loading ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-14 text-center dark:border-slate-700 dark:bg-slate-900">
+          <div className="text-4xl">🛌</div>
           <p className="mt-3 text-lg font-semibold text-slate-700 dark:text-slate-200">
             {t("emptyPlan")}
           </p>
@@ -68,7 +94,7 @@ export function PlanClient() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_220px]">
           <ol className="space-y-3">
             {items.map((ex, i) => (
               <li
@@ -96,7 +122,7 @@ export function PlanClient() {
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => plan.move(i, i - 1)}
+                    onClick={() => plan.move(plan.activeDay, i, i - 1)}
                     disabled={i === 0}
                     aria-label={t("moveUp")}
                     className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-slate-800"
@@ -105,7 +131,7 @@ export function PlanClient() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => plan.move(i, i + 1)}
+                    onClick={() => plan.move(plan.activeDay, i, i + 1)}
                     disabled={i === items.length - 1}
                     aria-label={t("moveDown")}
                     className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-slate-800"
@@ -114,7 +140,7 @@ export function PlanClient() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => plan.remove(ex.id)}
+                    onClick={() => plan.remove(plan.activeDay, ex.id)}
                     aria-label={t("remove")}
                     className="rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
                   >
